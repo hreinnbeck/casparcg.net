@@ -1,0 +1,711 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>CasparCG config file validator</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<style>
+		* {box-sizing: border-box;}
+		html, body{ height: 100%; margin: 0; }
+		html {
+		  color: #222;
+		  font-size: 1em;
+		  line-height: 1.4;
+		  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+		  counter-reset: errorCount;
+		}
+		body {
+		  display:flex; 
+		  flex-direction:column;
+		}
+		.configBlock {
+			width: 100%;
+			height: 40vh;
+		}
+		textarea {
+			width: 100%;
+			height: 100%;
+			resize: none;
+		}
+		strong { 
+			color: #c53030;
+			position: relative;
+		}
+		strong::before {
+			content: '(' counter(errorCount) ')';
+			position: absolute;
+			left: -2em;
+			counter-increment: errorCount;
+		}
+		#invalid {
+			background: #c53030;
+			color: #fff;
+			border-radius: 6px;
+			text-align: center;
+			padding: 1em 0;
+		}
+		#invalid:empty {
+			display: none;
+		}
+		main {
+			width: 90vw;
+			margin: 0 auto;
+			padding-bottom: 2em;
+		}
+		div {
+			margin-bottom: 1em;
+		}
+		code {
+			background: #ddd;
+			padding: 0.2em 0.6em;
+			border-radius: 6px;
+			display: inline-block;
+			white-space: pre;
+		}
+		#config {
+			display: block;
+			border-radius: 6px;
+			padding: 1em;
+		}
+		.highlight {
+		    border: 2px dashed #0077be;
+		    background-color: #99ccff;
+		}
+		footer {
+			border-top: 1px solid #ccc;
+			margin-top: auto;
+			padding: 0.5em;
+			text-align: center;
+			font-size: 0.8em;
+			color: #555;
+		}
+		button {
+			border: none;
+		    margin: 0;
+		    padding: 0.6em;
+		    width: auto;
+		    overflow: visible;
+			background: #0077be;
+			color: #fff;
+			font-weight: bold;
+			border-radius: 6px;
+		}
+		.small {
+			padding: 0.4em;
+			font-size: 0.8em;
+		}
+	</style>
+</head>
+<body>
+<main>
+	<h1>CasparCG config file validator</h1>
+	<p>This is a simple validator for CasparCG config files.</p>
+	<p><b>Drag</b> your <code>casparcg.config</code> file into the box below or <b>paste</b> in the contents of your config file below and hit <button class="small" onclick="reset();validate()">Validate</button>.  The results will display below.</p>
+	<p>For some insight into the CasparCG config file and it's options, check out "<a href="explained.html">The Casparcg.config file explained</a>" (still a work in progress).
+<div class="configBlock">
+	<textarea id="config"></textarea>
+</div>
+<div class="buttons">
+	<button onclick="reset();validate()">Validate</button><button style="margin-left:1.5em" onclick="errorConfig();validate()">Use test file with errors</button><button style="margin-left:1.5em" onclick="validConfig();validate()">Use test file with no errors</button>
+</div>
+<h4>Results:</h4>
+<div id="invalid"></div>
+<div id="results"></div>
+<div id="summary"></div>
+</main>
+<footer>
+	Validates XML, verifies that only known tags are used, checks if user is using example code, verifies values of most tags.  Summary with the number of channels and configured outputs.<br>
+	Hint: You can save this webpage and keep a copy of it locally to run in a browser<br>
+	<a href="https://github.com/CasparCG/help/wiki">CasparCG Wiki</a> | <a href="https://casparcgforum.org/">CasparCG User forum</a> | <a href="https://github.com/CasparCG/help">CasparCG Help (GitHub)</a> | <a href="https://github.com/CasparCG/server">CasparCG/server (GitHub)</a><br>
+	Created by <a href="https://github.com/hreinnbeck">hreinnbeck</a>, uses <a href="https://github.com/NaturalIntelligence/fast-xml-parser">NaturalIntelligence/fast-xml-parser</a>
+</footer>
+
+
+<script>/* https://github.com/NaturalIntelligence/fast-xml-parser */var parser=function(t){var e={};function r(a){if(e[a])return e[a].exports;var i=e[a]={i:a,l:!1,exports:{}};return t[a].call(i.exports,i,i.exports,r),i.l=!0,i.exports}return r.m=t,r.c=e,r.d=function(t,e,a){r.o(t,e)||Object.defineProperty(t,e,{enumerable:!0,get:a})},r.r=function(t){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(t,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(t,"__esModule",{value:!0})},r.t=function(t,e){if(1&e&&(t=r(t)),8&e)return t;if(4&e&&"object"==typeof t&&t&&t.__esModule)return t;var a=Object.create(null);if(r.r(a),Object.defineProperty(a,"default",{enumerable:!0,value:t}),2&e&&"string"!=typeof t)for(var i in t)r.d(a,i,function(e){return t[e]}.bind(null,i));return a},r.n=function(t){var e=t&&t.__esModule?function(){return t.default}:function(){return t};return r.d(e,"a",e),e},r.o=function(t,e){return Object.prototype.hasOwnProperty.call(t,e)},r.p="",r(r.s=2)}([function(t,e,r){"use strict";var a=function(t,e){var r=e.exec(t);return!(null==r)};e.isExist=function(t){return void 0!==t},e.isEmptyObject=function(t){return 0===Object.keys(t).length},e.merge=function(t,e){if(e)for(var r=Object.keys(e),a=r.length,i=0;i<a;i++)t[r[i]]=e[r[i]]},e.getValue=function(t){return e.isExist(t)?t:""},e.buildOptions=function(t,e,r){var a={};if(!t)return e;for(var i=0;i<r.length;i++)void 0!==t[r[i]]?a[r[i]]=t[r[i]]:a[r[i]]=e[r[i]];return a},e.doesMatch=a,e.doesNotMatch=function(t,e){return!a(t,e)},e.getAllMatches=function(t,e){for(var r=[],a=e.exec(t);a;){for(var i=[],n=a.length,s=0;s<n;s++)i.push(a[s]);r.push(i),a=e.exec(t)}return r}},function(t,e,r){"use strict";var a=r(0),i=r(0).buildOptions,n=r(4),s={OPENING:1,CLOSING:2,SELF:3,CDATA:4},o="<((!\\[CDATA\\[([\\s\\S]*?)(]]>))|(([\\w:\\-._]*:)?([\\w:\\-._]+))([^>]*)>|((\\/)(([\\w:\\-._]*:)?([\\w:\\-._]+))\\s*>))([^<]*)";!Number.parseInt&&window.parseInt&&(Number.parseInt=window.parseInt),!Number.parseFloat&&window.parseFloat&&(Number.parseFloat=window.parseFloat);var l={attributeNamePrefix:"@_",attrNodeName:!1,textNodeName:"#text",ignoreAttributes:!0,ignoreNameSpace:!1,allowBooleanAttributes:!1,parseNodeValue:!0,parseAttributeValue:!1,arrayMode:!1,trimValues:!0,cdataTagName:!1,cdataPositionChar:"\\c",localeRange:"",tagValueProcessor:function(t){return t},attrValueProcessor:function(t){return t},stopNodes:[]};e.defaultOptions=l;var u=["attributeNamePrefix","attrNodeName","textNodeName","ignoreAttributes","ignoreNameSpace","allowBooleanAttributes","parseNodeValue","parseAttributeValue","arrayMode","trimValues","cdataTagName","cdataPositionChar","localeRange","tagValueProcessor","attrValueProcessor","parseTrueNumberOnly","stopNodes"];e.props=u;function c(t,e){return t&&(e.trimValues&&(/\S/.test(t)||(t=t.trim())),t=h(t=e.tagValueProcessor(t),e.parseNodeValue,e.parseTrueNumberOnly)),t}function d(t,e){if(e.ignoreNameSpace){var r=t.split(":"),a="/"===t.charAt(0)?"/":"";if("xmlns"===r[0])return"";2===r.length&&(t=a+r[1])}return t}function h(t,e,r){var i;return e&&"string"==typeof t?(""===t.trim()||isNaN(t)?i="true"===t||"false"!==t&&t:(i=-1!==t.indexOf("0x")?Number.parseInt(t,16):-1!==t.indexOf(".")?Number.parseFloat(t):Number.parseInt(t,10),r&&(i=String(i)===t?i:t)),i):a.isExist(t)?t:""}var f=new RegExp("([^\\s=]+)\\s*(=\\s*(['\"])(.*?)\\3)?","g");function p(t,e){if(!e.ignoreAttributes&&"string"==typeof t){t=t.replace(/\r?\n/g," ");for(var r=a.getAllMatches(t,f),i=r.length,n={},s=0;s<i;s++){var o=d(r[s][1],e);o.length&&(void 0!==r[s][4]?(e.trimValues&&(r[s][4]=r[s][4].trim()),r[s][4]=e.attrValueProcessor(r[s][4]),n[e.attributeNamePrefix+o]=h(r[s][4],e.parseAttributeValue,e.parseTrueNumberOnly)):e.allowBooleanAttributes&&(n[e.attributeNamePrefix+o]=!0))}if(!Object.keys(n).length)return;if(e.attrNodeName){var l={};return l[e.attrNodeName]=n,l}return n}}e.getTraversalObj=function(t,e){e=i(e,l,u),t=t.replace(/<!--[\s\S]*?-->/g,"");var r=new n("!xml"),d=r;o=o.replace(/\[\\w/g,"["+e.localeRange+"\\w");for(var h=new RegExp(o,"g"),f=h.exec(t),g=h.exec(t);f;){var v="]]>"===(A=f)[4]?s.CDATA:"/"===A[10]?s.CLOSING:void 0!==A[8]&&"/"===A[8].substr(A[8].length-1)?s.SELF:s.OPENING;if(v===s.CLOSING)d.parent&&f[14]&&(d.parent.val=a.getValue(d.parent.val)+""+c(f[14],e)),e.stopNodes.length&&e.stopNodes.includes(d.tagname)&&(d.child=[],null==d.attrsMap&&(d.attrsMap={}),d.val=t.substr(d.startIndex+1,f.index-d.startIndex-1)),d=d.parent;else if(v===s.CDATA)if(e.cdataTagName){var m=new n(e.cdataTagName,d,f[3]);m.attrsMap=p(f[8],e),d.addChild(m),d.val=a.getValue(d.val)+e.cdataPositionChar,f[14]&&(d.val+=c(f[14],e))}else d.val=(d.val||"")+(f[3]||"")+c(f[14],e);else if(v===s.SELF){d&&f[14]&&(d.val=a.getValue(d.val)+""+c(f[14],e));var b=new n(e.ignoreNameSpace?f[7]:f[5],d,"");f[8]&&f[8].length>0&&(f[8]=f[8].substr(0,f[8].length-1)),b.attrsMap=p(f[8],e),d.addChild(b)}else{var N=new n(e.ignoreNameSpace?f[7]:f[5],d,c(f[14],e));e.stopNodes.length&&e.stopNodes.includes(N.tagname)&&(N.startIndex=f.index+f[1].length),N.attrsMap=p(f[8],e),d.addChild(N),d=N}f=g,g=h.exec(t)}var A;return r}},function(t,e,r){"use strict";var a=r(3),i=r(1),n=r(1),s=r(0).buildOptions;e.parse=function(t,e){return e=s(e,n.defaultOptions,n.props),a.convertToJson(i.getTraversalObj(t,e),e)},e.convertTonimn=r(5).convert2nimn,e.getTraversalObj=i.getTraversalObj,e.convertToJson=a.convertToJson,e.convertToJsonString=r(6).convertToJsonString,e.validate=r(7).validate,e.j2xParser=r(8),e.parseToNimn=function(t,r,a){return e.convertTonimn(e.getTraversalObj(t,a),r,a)}},function(t,e,r){"use strict";var a=r(0);e.convertToJson=function t(e,r){var i={};if(!(e.child&&!a.isEmptyObject(e.child)||e.attrsMap&&!a.isEmptyObject(e.attrsMap)))return a.isExist(e.val)?e.val:"";a.isExist(e.val)&&("string"!=typeof e.val||""!==e.val&&e.val!==r.cdataPositionChar)&&(i[r.textNodeName]=e.val),a.merge(i,e.attrsMap);for(var n=Object.keys(e.child),s=0;s<n.length;s++){var o=n[s];if(e.child[o]&&e.child[o].length>1)for(var l in i[o]=[],e.child[o])i[o].push(t(e.child[o][l],r));else i[o]=t(e.child[o][0],r)}return i}},function(t,e,r){"use strict";t.exports=function(t,e,r){this.tagname=t,this.parent=e,this.child={},this.attrsMap={},this.val=r,this.addChild=function(t){Array.isArray(this.child[t.tagname])?this.child[t.tagname].push(t):this.child[t.tagname]=[t]}}},function(t,e,r){"use strict";var a=function(t){return String.fromCharCode(t)},i={nilChar:a(176),missingChar:a(201),nilPremitive:a(175),missingPremitive:a(200),emptyChar:a(178),emptyValue:a(177),boundryChar:a(179),objStart:a(198),arrStart:a(204),arrayEnd:a(185)},n=[i.nilChar,i.nilPremitive,i.missingChar,i.missingPremitive,i.boundryChar,i.emptyChar,i.emptyValue,i.arrayEnd,i.objStart,i.arrStart],s=function t(e,r,a){if("string"==typeof r)return e&&e[0]&&void 0!==e[0].val?o(e[0].val,r):o(e,r);var n,s=void 0===(n=e)?i.missingChar:null===n?i.nilChar:!(n.child&&0===Object.keys(n.child).length&&(!n.attrsMap||0===Object.keys(n.attrsMap).length))||i.emptyChar;if(!0===s){var u="";if(Array.isArray(r)){u+=i.arrStart;var c=r[0],d=e.length;if("string"==typeof c)for(var h=0;h<d;h++){var f=o(e[h].val,c);u=l(u,f)}else for(var p=0;p<d;p++){var g=t(e[p],c,a);u=l(u,g)}u+=i.arrayEnd}else{u+=i.objStart;var v=Object.keys(r);for(var m in Array.isArray(e)&&(e=e[0]),v){var b=v[m],N=void 0;N=!a.ignoreAttributes&&e.attrsMap&&e.attrsMap[b]?t(e.attrsMap[b],r[b],a):b===a.textNodeName?t(e.val,r[b],a):t(e.child[b],r[b],a),u=l(u,N)}}return u}return s},o=function(t){switch(t){case void 0:return i.missingPremitive;case null:return i.nilPremitive;case"":return i.emptyValue;default:return t}},l=function(t,e){return u(e[0])||u(t[t.length-1])||(t+=i.boundryChar),t+e},u=function(t){return-1!==n.indexOf(t)};var c=r(1),d=r(0).buildOptions;e.convert2nimn=function(t,e,r){return r=d(r,c.defaultOptions,c.props),s(t,e,r)}},function(t,e,r){"use strict";var a=r(0),i=r(0).buildOptions,n=r(1),s=function t(e,r,i){for(var n,s="{",o=Object.keys(e.child),l=0;l<o.length;l++){var u=o[l];if(e.child[u]&&e.child[u].length>1){for(var c in s+='"'+u+'" : [ ',e.child[u])s+=t(e.child[u][c],r)+" , ";s=s.substr(0,s.length-1)+" ] "}else s+='"'+u+'" : '+t(e.child[u][0],r)+" ,"}return a.merge(s,e.attrsMap),a.isEmptyObject(s)?a.isExist(e.val)?e.val:"":(a.isExist(e.val)&&("string"!=typeof e.val||""!==e.val&&e.val!==r.cdataPositionChar)&&(s+='"'+r.textNodeName+'" : '+(!0!==(n=e.val)&&!1!==n&&isNaN(n)?'"'+n+'"':n)),","===s[s.length-1]&&(s=s.substr(0,s.length-2)),s+"}")};e.convertToJsonString=function(t,e){return(e=i(e,n.defaultOptions,n.props)).indentBy=e.indentBy||"",s(t,e,0)}},function(t,e,r){"use strict";var a=r(0),i={allowBooleanAttributes:!1,localeRange:"a-zA-Z"},n=["allowBooleanAttributes","localeRange"];function s(t,e){for(var r=e;e<t.length;e++)if("?"!=t[e]&&" "!=t[e]);else{var a=t.substr(r,e-r);if(e>5&&"xml"===a)return{err:{code:"InvalidXml",msg:"XML declaration allowed only at the start of the document."}};if("?"==t[e]&&">"==t[e+1]){e++;break}}return e}function o(t,e){if(t.length>e+5&&"-"===t[e+1]&&"-"===t[e+2]){for(e+=3;e<t.length;e++)if("-"===t[e]&&"-"===t[e+1]&&">"===t[e+2]){e+=2;break}}else if(t.length>e+8&&"D"===t[e+1]&&"O"===t[e+2]&&"C"===t[e+3]&&"T"===t[e+4]&&"Y"===t[e+5]&&"P"===t[e+6]&&"E"===t[e+7]){var r=1;for(e+=8;e<t.length;e++)if("<"===t[e])r++;else if(">"===t[e]&&0===--r)break}else if(t.length>e+9&&"["===t[e+1]&&"C"===t[e+2]&&"D"===t[e+3]&&"A"===t[e+4]&&"T"===t[e+5]&&"A"===t[e+6]&&"["===t[e+7])for(e+=8;e<t.length;e++)if("]"===t[e]&&"]"===t[e+1]&&">"===t[e+2]){e+=2;break}return e}e.validate=function(t,e){e=a.buildOptions(e,i,n);var r=[],l=!1;"\ufeff"===t[0]&&(t=t.substr(1));for(var u=new RegExp("^[_w][\\w\\-.:]*$".replace("_w","_"+e.localeRange)),d=new RegExp("^([w]|_)[\\w.\\-_:]*".replace("([w","(["+e.localeRange)),f=0;f<t.length;f++){if("<"!==t[f]){if(" "===t[f]||"\t"===t[f]||"\n"===t[f]||"\r"===t[f])continue;return{err:{code:"InvalidChar",msg:"char "+t[f]+" is not expected ."}}}if("?"===t[++f]){if((f=s(t,++f)).err)return f}else{if("!"===t[f]){f=o(t,f);continue}var g=!1;"/"===t[f]&&(g=!0,f++);for(var v="";f<t.length&&">"!==t[f]&&" "!==t[f]&&"\t"!==t[f]&&"\n"!==t[f]&&"\r"!==t[f];f++)v+=t[f];if("/"===(v=v.trim())[v.length-1]){v=v.substring(0,v.length-1);continue}if(!p(v,d))return{err:{code:"InvalidTag",msg:"Tag "+v+" is an invalid name."}};var m=c(t,f);if(!1===m)return{err:{code:"InvalidAttr",msg:"Attributes for "+v+" have open quote"}};var b=m.value;if(f=m.index,"/"===b[b.length-1]){var N=h(b=b.substring(0,b.length-1),e,u);if(!0!==N)return N;l=!0}else if(g){if(b.trim().length>0)return{err:{code:"InvalidTag",msg:"closing tag "+v+" can't have attributes or invalid starting."}};var A=r.pop();if(v!==A)return{err:{code:"InvalidTag",msg:"closing tag "+A+" is expected inplace of "+v+"."}}}else{var x=h(b,e,u);if(!0!==x)return x;r.push(v),l=!0}for(f++;f<t.length;f++)if("<"===t[f]){if("!"===t[f+1]){f=o(t,++f);continue}break}"<"===t[f]&&f--}}return l?!(r.length>0)||{err:{code:"InvalidXml",msg:"Invalid "+JSON.stringify(r,null,4).replace(/\r?\n/g,"")+" found."}}:{err:{code:"InvalidXml",msg:"Start tag expected."}}};var l='"',u="'";function c(t,e){for(var r="",a="";e<t.length;e++){if(t[e]===l||t[e]===u)if(""===a)a=t[e];else{if(a!==t[e])continue;a=""}else if(">"===t[e]&&""===a)break;r+=t[e]}return""===a&&{value:r,index:e}}var d=new RegExp("(\\s*)([^\\s=]+)(\\s*=)?(\\s*(['\"])(([\\s\\S])*?)\\5)?","g");function h(t,e,r){for(var i=a.getAllMatches(t,d),n={},s=0;s<i.length;s++){if(0===i[s][1].length)return{err:{code:"InvalidAttr",msg:"attribute "+i[s][2]+" has no space in starting."}};if(void 0===i[s][3]&&!e.allowBooleanAttributes)return{err:{code:"InvalidAttr",msg:"boolean attribute "+i[s][2]+" is not allowed."}};var o=i[s][2];if(!f(o,r))return{err:{code:"InvalidAttr",msg:"attribute "+o+" is an invalid name."}};if(n.hasOwnProperty(o))return{err:{code:"InvalidAttr",msg:"attribute "+o+" is repeated."}};n[o]=1}return!0}function f(t,e){return a.doesMatch(t,e)}function p(t,e){return!a.doesNotMatch(t,e)}},function(t,e,r){"use strict";var a=r(0).buildOptions,i={attributeNamePrefix:"@_",attrNodeName:!1,textNodeName:"#text",ignoreAttributes:!0,cdataTagName:!1,cdataPositionChar:"\\c",format:!1,indentBy:"  ",supressEmptyNode:!1,tagValueProcessor:function(t){return t},attrValueProcessor:function(t){return t}},n=["attributeNamePrefix","attrNodeName","textNodeName","ignoreAttributes","cdataTagName","cdataPositionChar","format","indentBy","supressEmptyNode","tagValueProcessor","attrValueProcessor"];function s(t){this.options=a(t,i,n),this.options.ignoreAttributes||this.options.attrNodeName?this.isAttribute=function(){return!1}:(this.attrPrefixLen=this.options.attributeNamePrefix.length,this.isAttribute=p),this.options.cdataTagName?this.isCDATA=g:this.isCDATA=function(){return!1},this.replaceCDATAstr=o,this.replaceCDATAarr=l,this.options.format?(this.indentate=f,this.tagEndChar=">\n",this.newLine="\n"):(this.indentate=function(){return""},this.tagEndChar=">",this.newLine=""),this.options.supressEmptyNode?(this.buildTextNode=h,this.buildObjNode=c):(this.buildTextNode=d,this.buildObjNode=u),this.buildTextValNode=d,this.buildObjectNode=u}function o(t,e){return t=this.options.tagValueProcessor(""+t),""===this.options.cdataPositionChar||""===t?t+"<![CDATA["+e+"]]"+this.tagEndChar:t.replace(this.options.cdataPositionChar,"<![CDATA["+e+"]]"+this.tagEndChar)}function l(t,e){if(t=this.options.tagValueProcessor(""+t),""===this.options.cdataPositionChar||""===t)return t+"<![CDATA["+e.join("]]><![CDATA[")+"]]"+this.tagEndChar;for(var r in e)t=t.replace(this.options.cdataPositionChar,"<![CDATA["+e[r]+"]]>");return t+this.newLine}function u(t,e,r,a){return r&&!t.includes("<")?this.indentate(a)+"<"+e+r+">"+t+"</"+e+this.tagEndChar:this.indentate(a)+"<"+e+r+this.tagEndChar+t+this.indentate(a)+"</"+e+this.tagEndChar}function c(t,e,r,a){return""!==t?this.buildObjectNode(t,e,r,a):this.indentate(a)+"<"+e+r+"/"+this.tagEndChar}function d(t,e,r,a){return this.indentate(a)+"<"+e+r+">"+this.options.tagValueProcessor(""+t)+"</"+e+this.tagEndChar}function h(t,e,r,a){return""!==t?this.buildTextValNode(t,e,r,a):this.indentate(a)+"<"+e+r+"/"+this.tagEndChar}function f(t){return this.options.indentBy.repeat(t)}function p(t){return!!t.startsWith(this.options.attributeNamePrefix)&&t.substr(this.attrPrefixLen)}function g(t){return t===this.options.cdataTagName}s.prototype.parse=function(t){return this.j2x(t,0).val},s.prototype.j2x=function(t,e){for(var r="",a="",i=Object.keys(t),n=i.length,s=0;s<n;s++){var o=i[s];if(void 0===t[o]);else if(null===t[o])a+=this.indentate(e)+"<"+o+"/"+this.tagEndChar;else if("object"!=typeof t[o]){var l=this.isAttribute(o);l?r+=" "+l+'="'+this.options.attrValueProcessor(""+t[o])+'"':this.isCDATA(o)?t[this.options.textNodeName]?a+=this.replaceCDATAstr(t[this.options.textNodeName],t[o]):a+=this.replaceCDATAstr("",t[o]):o===this.options.textNodeName?t[this.options.cdataTagName]||(a+=this.options.tagValueProcessor(""+t[o])):a+=this.buildTextNode(t[o],o,"",e)}else if(Array.isArray(t[o]))if(this.isCDATA(o))a+=this.indentate(e),t[this.options.textNodeName]?a+=this.replaceCDATAarr(t[this.options.textNodeName],t[o]):a+=this.replaceCDATAarr("",t[o]);else for(var u=t[o].length,c=0;c<u;c++){var d=t[o][c];if(void 0===d);else if(null===d)a+=this.indentate(e)+"<"+o+"/"+this.tagEndChar;else if("object"==typeof d){var h=this.j2x(d,e+1);a+=this.buildObjNode(h.val,o,h.attrStr,e)}else a+=this.buildTextNode(d,o,"",e)}else if(this.options.attrNodeName&&o===this.options.attrNodeName)for(var f=Object.keys(t[o]),p=f.length,g=0;g<p;g++)r+=" "+f[g]+'="'+this.options.attrValueProcessor(""+t[o][f[g]])+'"';else{var v=this.j2x(t[o],e+1);a+=this.buildObjNode(v.val,o,v.attrStr,e)}}return{attrStr:r,val:a}},t.exports=s}]);</script>
+<script>
+var config = document.getElementById('config');
+var results = document.getElementById('results');
+var invalid = document.getElementById('invalid');
+var summary = document.getElementById('summary');
+var errors = channels = bluefish = newtek_ivga = ndi = ffmpeg = decklink = screen = systemAudio = 0;
+var parserOptions = {
+    attributeNamePrefix : "@_",
+    attrNodeName: "attr",
+    textNodeName : "#text",
+    ignoreAttributes : true,
+    ignoreNameSpace : false,
+    allowBooleanAttributes : false,
+    parseNodeValue : true,
+    parseAttributeValue : false,
+    trimValues: true,
+    cdataTagName: "__cdata",
+    cdataPositionChar: "\\c",
+    localeRange: "",
+    parseTrueNumberOnly: false,
+};
+
+var protocols = 'amcp|cii|clock|log';
+var allowed_protocols = protocols.split('|');
+var loglevels = 'trace|debug|info|warning|error|fatal';
+var allowed_logLevels = loglevels.split('|');
+var videoModes = 'pal|ntsc|576p2500|720p2398|720p2400|720p2500|720p5000|720p2997|720p5994|720p3000|720p6000|1080p2398|1080p2400|1080i5000|1080i5994|1080i6000|1080p2500|1080p2997|1080p3000|1080p5000|1080p5994|1080p6000|1556p2398|1556p2400|1556p2500|dci1080p2398|dci1080p2400|dci1080p2500|2160p2398|2160p2400|2160p2500|2160p2997|2160p3000|2160p5000|2160p5994|2160p6000|dci2160p2398|dci2160p2400|dci2160p2500';
+var allowed_videoModes = videoModes.split('|');
+var channelLayouts = 'mono|stereo|matrix|film|smpte|ebu_r123_8a|ebu_r123_8b|8ch|16ch';
+var allowed_channeLayouts = channelLayouts.split('|');
+var timecode = 'free|clock|layer';
+var allowed_timecode = timecode.split('|');
+
+var keyer = 'external|external_separate_device|internal|default|disabled';
+var allowed_keyer = keyer.split('|');
+var latency = 'normal|low|default';
+var allowed_latency = latency.split('|');
+var sdi_stream = 'a|b|c|d';
+var allowed_sdi_stream = sdi_stream.split('|');
+var internal_keyer_audio_source = 'videooutputchannel|videooutputchannel|sdivideoinput';
+var allowed_internal_keyer_audio_source = internal_keyer_audio_source.split('|');
+var aspect_ratio = 'default|4:3|16:9';
+var allowed_aspect_ratio = aspect_ratio.split('|');
+var stretch = 'none|fill|uniform|uniform_to_fill';
+var allowed_stretch = stretch.split('|');
+var log_categories = 'calltrace|communication|calltrace,communication';
+var allowed_log_categories = log_categories.split('|');
+var accelerator = 'cpu|gpu|auto';
+var allowed_accelerator = accelerator.split('|');
+
+var tags = 'accelerator|address|allow-fields|always-on-top|amcp|args|aspect-ratio|audio|auto-deinterlace|auto-load|blend-modes|bluefish|borderless|buffer-depth|channel|channel-grid|channel-id|channel-layout|channel-layouts|channels|colour-space|consumers|controllers|custom-allocator|data-path|decklink|default-port|device|disable-send-to-amcp-clients|embedded-audio|enable-gpu|ffmpeg|filename|flash|font-path|force-deinterlace|generate-delay-millis|generate-thumbnails|height|host|html|interactive|internal-keyer-audio-source|key-device|keyer|key-only|latency|lock-clear-phrase|log-categories|log-level|log-path|media-path|media-server|mipmap|mipmapping-default-on|mix-config|mix-configs|mixer|mono-streams|name|ndi|newtek-ivga|osc|path|paths|port|predefined-client|predefined-clients|producer|producers|protocol|remote-debugging-port|sbs-key|scan-interval-millis|screen|sdi-stream|separate-key|straight-alpha|straight-alpha-output|stretch|syncto|system-audio|tcp|type|template-host|template-hosts|template-path|thumbnail-path|thumbnails|thumbnails-path|timecode|timecode_layer|video-grid|video-mode|vsync|watchdog|width|windowed|x|y|0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|num-channels';
+var allowed_tags = tags.split('|');
+
+/* This is the bare minimum config for CCG to run
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <paths></paths>
+  <channels></channels>
+  <controllers></controllers>
+</configuration>
+*/
+
+if(window.location.hash) {
+	config.value = decodeURI(window.location.hash.substring(1));
+	validate();
+}
+
+function validate() {
+	var xmlData = config.value;
+
+	if(xmlData.trim() == '') {
+		updateError('The textarea has no content');
+		return true;
+	}
+	var result = parser.validate(xmlData, { allowBooleanAttributes: true, localeRange: 'a-zA-Z' });
+
+	updateResults('<a href="'+location.pathname+'#'+encodeURI(xmlData.trim())+'">Permanent link to this validation</a><br>');
+
+	if(result === true) {
+		updateResults('<b>Config passed XML validation</b>');
+		verifyConfig(xmlData);
+	} else {
+		var errorMsg = result.err.msg;
+		updateError('XML parsing error: ' + errorMsg.replace('<','&lt;').replace('>','%gt;') + ' (' + result.err.code + ')');
+		if(result.err.msg === 'XML declaration allowed only at the start of the document.') {
+			updateResults('<i>Hint:</i> You probably have a new line or whitespace characters before &lt;?xml version="1.0" encoding="utf-8"?&gt;')
+			updateResults('<button onclick="trimConfig();reValidate();">Try and fix it</button>')
+		}
+		return true;
+	}
+	if(errors < 1) {
+		summarize();
+	}
+}
+
+var jsonObj;
+function verifyConfig(xmlData) {
+	jsonObj = parser.parse(xmlData, parserOptions);
+
+	Object.entries(jsonObj).forEach(function(c) {
+		if(c[0].toLowerCase() === 'configuration') {
+			updateResults('First tag is: <b>&lt;configuration&gt;</b>');
+
+			if(typeof jsonObj.configuration.paths === 'undefined') {
+				updateError('Config is not valid - it must specify &lt;paths&gt');
+			}
+			if(typeof jsonObj.configuration.channels === 'undefined') {
+				updateError('Config is not valid - it must specify &lt;channels&gt');
+			}
+			if(typeof jsonObj.configuration.controllers === 'undefined') {
+				updateError('Config is not valid - it must specify &lt;controllers&gt');
+			}
+
+			checkConfig( c[1] );
+		} else {
+			updateError('Config is not valid - first tag is NOT &lt;configuration&gt');
+		}
+	});
+}
+
+function checkConfig(x) {
+	Object.entries(x).forEach(function(y) {
+		if(y[1] && typeof y[1] === 'string') {
+			checkString(y);
+		} else if (y[1] && typeof y[1] === 'object') {
+			checkObject(y);
+		} else if (typeof y[1] === 'boolean') {
+			updateResults('Found: <b>' + y[0] + '</b> with value: <code>' + y[1] + '</code>');
+			allowed(y[0].toLowerCase(), y[1].toString().toLowerCase());
+			updateCounters(y[0]);
+			//if(!allowed_tags.includes(y[0]))  { updateError('The tag <code>' + y[0]+ '</code> is not one of the regular tags used in a CasparCG config file'); }
+		} else {
+			//console.log('Tag without value');
+			//console.log(typeof y[1]);
+			//console.dir(y);
+			//console.log('---------');
+			updateResults('Found: <b>' + y[0] + '</b>');
+			allowed(y[0].toLowerCase(), y[1].toString().toLowerCase());
+			updateCounters(y[0]);
+			//if(!allowed_tags.includes(y[0]))  { updateError('The tag <code>' + y[0]+ '</code> is not one of the regular tags used in a CasparCG config file'); }
+		}
+	});
+	if(errors > 0) {
+		updateInvalid(`<h2>This config file has ${errors} error(s) and is probably invalid!</h2>`)
+	}
+}
+
+function checkString(y, path) {
+	if(path === undefined) { path = ''; } else { path = path + '->'; }
+	updateResults('Found: <b>' + path + y[0] + '</b> with value: <code>' + y[1] + '</code>');
+	allowed(y[0].toLowerCase(), y[1].toLowerCase());
+	checkIfBracket(y[0], y[1]);
+	updateCounters(y[0]);
+}
+
+function allowed(tag, val) {
+	switch(tag) {
+		// Check booleans
+		case 'embedded-audio':
+		case 'key-only':
+		case 'embedded-audio':
+		case 'key-only':
+		case 'auto-deinterlace':
+		case 'vsync':
+		case 'interactive':
+		case 'borderless':
+		case 'separate-key':
+		case 'mono-streams':
+		case 'windowed':
+		case 'force-deinterlace':
+		case 'channel-grid':
+		case 'blend-modes':
+		case 'mipmapping-default-on':
+		case 'straight-alpha':
+		case 'enable-gpu':
+		case 'generate-thumbnails':
+		case 'mipmap':
+		case 'disable-send-to-amcp-clients':
+		case 'straight-alpha-output': if(val != 'true' && val != 'false') { booleanError(tag, val); } break;
+
+		// Check integers
+		case 'channel-id':
+		case 'default-port':
+		case 'device':
+		case 'key-device':
+		case 'remote-debugging-port':
+		case 'height':
+		case 'video-grid':
+		case 'scan-interval-millis':
+		case 'generate-delay-millis':
+		case 'timecode_layer':
+		case 'width':
+		case 'port': 			var valInt = parseInt(val, 10); if(val != valInt || valInt < 0) { integerError(tag, val); } break;
+
+		// Check strings
+		case 'video-mode': 		if(!allowed_videoModes.includes(val)) { valueError(tag, val, videoModes); }  break;
+		case 'protocol':   		if(!allowed_protocols.includes(val))  { valueError(tag, val, protocols); }  break;
+		case 'log-level':   	if(!allowed_logLevels.includes(val))  { valueError(tag, val, loglevels); }  break;
+		case 'channel-layout': 	if(!allowed_channeLayouts.includes(val))  { valueError(tag, val, channelLayouts); }  break;
+		case 'timecode': 		if(!allowed_timecode.includes(val))  { valueError(tag, val, timecode); }  break;
+		case 'keyer': 			if(!allowed_keyer.includes(val)) { valueError(tag, val, keyer); }  break;
+		case 'sdi-stream': 		if(!allowed_sdi_stream.includes(val)) { valueError(tag, val, sdi_stream); }  break;
+		case 'aspect-ratio': 	if(!allowed_aspect_ratio.includes(val)) { valueError(tag, val, aspect_ratio); }  break;
+		case 'stretch': 		if(!allowed_stretch.includes(val)) { valueError(tag, val, stretch); }  break;
+		case 'log-categories': 	if(!allowed_log_categories.includes(val)) { valueError(tag, val, log_categories); }  break;
+		case 'accelerator': 	if(!allowed_accelerator.includes(val)) { valueError(tag, val, accelerator); }  break;
+		case 'latency': 		if(!allowed_latency.includes(val) && val != parseInt(val, 10)) { valueError(tag, val, latency); }  break;
+		case 'internal-keyer-audio-source': if(!allowed_internal_keyer_audio_source.includes(val)) { valueError(tag, val, internal_keyer_audio_source); }  break;
+
+		// Outliers
+		case 'buffer-depth': 	var valInt = parseInt(val, 10); if( (val != valInt || valInt < 0) && val != 'auto') { updateError('The value <code>' + val + '</code> for <b>' + tag + '</b> is invalid. It should be a positive integer (number) or <code>auto</code>.'); } break;
+		default: 		   		if(!allowed_tags.includes(tag))  { updateError('The tag <code>' + tag + '</code> is not one of the regular tags used in a CasparCG config file'); } break;
+	}
+}
+
+function valueError(tag, val, detail) {
+	updateError('The value <code>' + val + '</code> for <b>' + tag + '</b> is invalid. Possible values are: <code>' +detail+ '</code>');
+}
+
+function booleanError(tag, val) {
+	updateError('The value <code>' + val + '</code> for <b>' + tag + '</b> is invalid. Possible values are: <code>true|false</code>');
+}
+
+function integerError(tag, val) {
+	updateError('The value <code>' + val + '</code> for <b>' + tag + '</b> is invalid. It should be a positive integer (number).');
+}
+
+function checkObject(y, path) {
+	if(path === undefined) { path = ''; } else { path = path + '->'; }
+
+	updateCounters(y[0]);
+	
+	updateResults('Found: <b>' + path + y[0] + '</b>');
+
+	if(!allowed_tags.includes(y[0]))  { updateError('The tag <code>' + y[0]+ '</code> is not one of the regular tags used in a CasparCG config file'); }
+
+	Object.entries(y[1]).forEach(function(o) {
+		if(o[1] && typeof o[1] === 'string') {
+			checkString(o, path+y[0]);
+		} else if(o[1] && typeof o[1] === 'object') {
+			checkObject(o, path+y[0]);
+		} else if(o[1] && typeof o[1] === 'number') {
+			updateResults('Found: <b>' + path + y[0] + '->' + o[0] + '</b> with value: <code>' + o[1] + '</code>');
+			allowed(o[0].toLowerCase(), o[1].toString().toLowerCase());
+			updateCounters(o[0]);
+		} else if (typeof o[1] === 'boolean') {
+			updateResults('Found: <b>' + path + y[0] + '->' + o[0] + '</b> with value: <code>' + o[1] + '</code>');
+			allowed(o[0].toLowerCase(), o[1].toString().toLowerCase());
+			updateCounters(o[0]);
+		} else {
+			//console.log('Tag without value');
+			//console.log(typeof o[1]);
+			//console.dir(o);
+			updateResults('Found: <b>' + path + o[0] + '</b> and it has no value set');
+			updateCounters(o[0]);
+		}
+	});
+}
+
+function updateCounters(x) {
+	switch(x.toLowerCase()) {
+		case 'decklink': decklink++; break;
+		case 'screen': screen++; break;
+		case 'system-audio': systemAudio++; break;
+		case 'bluefish': bluefish++; break;
+		case 'newtek-ivga': newtek_ivga++; break;
+		case 'ndi': ndi++; break;
+		case 'ffmpeg': ffmpeg++; break;
+	}
+}
+
+function checkIfBracket(tag,val) {
+	if( val.match(/\[|\]|\|/g) ) {
+		updateError('The value of <b>' + tag + '</b> contains square brackets or pipes - which are not allowed.  It seems you are copy/pasting from the examples section of the config file.');
+	}
+	if(val.trim() != val) {
+		updateError('The value of <b>' + tag + '</b> appears to have whitepace characters which might make it invalid.');	
+	}
+}
+
+function updateResults(x) {
+	results.innerHTML = results.innerHTML + '<br>' + x;
+}
+
+function updateError(x) {
+	results.innerHTML = results.innerHTML + '<br>' + '<strong>ERROR!</strong> ' + x;
+	errors++;
+}
+
+function updateInvalid(x) {
+	invalid.innerHTML = x;
+}
+
+function trimConfig() {
+	config.value = config.value.trim();
+}
+
+function reset(a) {
+	errors = channels = bluefish = newtek_ivga = ndi = ffmpeg = decklink = screen = systemAudio = 0;
+	results.innerHTML = '';
+	invalid.innerHTML = '';
+	summary.innerHTML = '';
+	if(a) { config.value = ''; }
+}
+
+function reValidate() {
+	reset();
+	validate();
+}
+
+function summarize() {
+	channels = Object.keys(jsonObj.configuration.channels.channel).length;
+	summary.innerHTML = `<b>This config has:</b><br>
+	${channels} channel(s)<br>
+	${screen} screen consumer(s)<br>
+	${systemAudio} system audio output(s)<br>
+	${decklink} decklink output(s)<br>
+	${bluefish} bluefish output(s)<br>
+	${newtek_ivga} newtek-ivga output(s)<br>
+	${ndi} ndi output(s)<br>
+	${ffmpeg} ffmpeg output(s)<br>
+	<b>Validation finished!</b>
+	`;
+}
+
+var dropArea = config;
+dropArea.addEventListener('dragenter', highlight, false)
+dropArea.addEventListener('dragover', highlight, false)
+dropArea.addEventListener('dragleave', unHighlight, false)
+dropArea.addEventListener('drop', unHighlight, false)
+window.addEventListener('dragover', stop, false)
+window.addEventListener('drop', stop, false)
+dropArea.addEventListener('drop', onDrop, false)
+function highlight(e) {
+    dropArea.classList.add('highlight')
+    e.preventDefault()
+    e.stopPropagation()
+}
+function unHighlight(e) {
+    dropArea.classList.remove('highlight')
+    e.preventDefault()
+    e.stopPropagation()
+}
+function stop(e) {
+    e.preventDefault()
+    e.stopPropagation()
+}
+function onDrop(e) {
+    let dt = e.dataTransfer
+    let files = dt.files
+    previewFile(files)
+}
+function previewFile(files) {
+    [...files].forEach((file) => {
+            let reader = new FileReader()
+            reader.readAsText(file)
+            reader.onloadend = function () {
+                config.value = reader.result
+                reValidate();
+            }
+    })
+}
+
+function errorConfig() {
+	reset(true);
+	config.value = `	<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <paths>
+    <media-path>media\</media-path>
+    <log-path>log\</log-path>
+    <data-path>data\</data-path>
+    <template-path>templates\</template-path>
+    <thumbnails-path>thumbnails\</thumbnails-path>
+  </paths>
+<log-level>       trace [trace|debug|info|warning|error]</log-level>
+<lock-clear-phrase>topSecretLockPhrase!"%/!"/"#!1132 with spaces at end     </lock-clear-phrase>
+<channel-grid>4</channel-grid>
+  <channels>
+    <channel>
+        <video-mode>1000i5000</video-mode>
+        <consumers>
+          <screen>
+            <device>1</device>
+            <key-onlys>false [true|false]</key-onlys>
+            <keyer>notvalid</keyer>
+          </screen>
+          <system-audio />
+        </consumers>
+          <buffer-depth>-7</buffer-depth>
+    </channel>
+    <channel>
+      <video-mode>PAL</video-mode>
+      <channel-layout>backonly</channel-layout>
+      <straight-alpha-output>yes</straight-alpha-output>
+      <timecode>freerun</timecode>
+      <system-audio><latency>notvalid</latency></system-audio>
+      <system-audio><latency>123</latency></system-audio>
+     </channel>
+  </channels>
+  <controllers>
+    <tcp>
+        <port>5250</port>
+        <protocol>AMCPX</protocol>
+    </tcp>
+  </controllers>
+  <this-tag-has-never-been-used-in-caspar />
+</configuration>`;
+}
+
+function validConfig() {
+	reset(true);
+	config.value = `<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <paths>
+    <media-path>media/</media-path>
+    <log-path>log/</log-path>
+    <data-path>data/</data-path>
+    <template-path>template/</template-path>
+    <thumbnail-path>thumbnail/</thumbnail-path>
+    <font-path>font/</font-path>
+  </paths>
+  <log-level>warning</log-level>
+  <log-categories>communication</log-categories>
+  <lock-clear-phrase>topSecretLockPhrase!"%/!"/"#!1132 with spaces at end</lock-clear-phrase>
+  <force-deinterlace>false</force-deinterlace>
+    <channel-grid>true</channel-grid>
+    <mixer>
+        <blend-modes>true</blend-modes>
+        <mipmapping-default-on>true</mipmapping-default-on>
+        <straight-alpha>false</straight-alpha>
+    </mixer>
+    <accelerator>auto</accelerator>
+<template-hosts>
+    <template-host>
+        <video-mode />
+        <filename />
+        <width />
+        <height />
+    </template-host>
+</template-hosts>
+<flash>
+    <buffer-depth>auto</buffer-depth>
+</flash>
+<html>
+    <remote-debugging-port>1234</remote-debugging-port>
+    <enable-gpu>false</enable-gpu>
+</html>
+<thumbnails>
+    <generate-thumbnails>false</generate-thumbnails>
+    <width>256</width>
+    <height>144</height>
+    <video-grid>2</video-grid>
+    <scan-interval-millis>5000</scan-interval-millis>
+    <generate-delay-millis>2000</generate-delay-millis>
+    <video-mode>720p2500</video-mode>
+    <mipmap>true</mipmap>
+</thumbnails>
+  <channels>
+    <channel>
+      <video-mode>PAL</video-mode>
+      <channel-layout>stereo</channel-layout>
+      <straight-alpha-output>false</straight-alpha-output>
+      <consumers>
+        <screen>
+          <device>1</device>
+          <windowed>true</windowed>
+        </screen>
+        <system-audio></system-audio>
+            <bluefish>
+                <device>1</device>
+                <sdi-stream>a</sdi-stream>
+                <embedded-audio>true</embedded-audio>
+                <channel-layout>stereo</channel-layout>
+                <key-only>false</key-only>
+                <keyer>external</keyer>
+                <internal-keyer-audio-source>videooutputchannel</internal-keyer-audio-source>
+            </bluefish>
+            <newtek-ivga></newtek-ivga>
+            <ffmpeg>
+                <path>udp://192.168.1.1:1234</path>
+                <args>-x264opts justsomething -b:v 2000k</args>
+                <separate-key>false</separate-key>
+                <mono-streams>false</mono-streams>
+            </ffmpeg>
+            <syncto>
+                <channel-id>1</channel-id>
+            </syncto>
+      </consumers>
+        <producers>
+            <producer id="0">AMB LOOP</producer>
+            <producer id="10">DECKLINK DEVICE 4</producer>
+        </producers>
+    </channel>
+    <channel>
+      <video-mode>1080i5000</video-mode>
+      <channel-layout>16ch</channel-layout>
+      <timecode>clock</timecode>
+      <timecode_layer>2</timecode_layer>
+      <consumers>
+            <decklink>
+                <device>1</device>
+                <key-device>2</key-device>
+                <embedded-audio>true</embedded-audio>
+                <channel-layout>16ch</channel-layout>
+                <latency>low</latency>
+                <keyer>external_separate_device</keyer>
+                <key-only>false</key-only>
+                <buffer-depth>2</buffer-depth>
+            </decklink>
+            <system-audio>
+                <channel-layout>stereo</channel-layout>
+                <latency>200</latency>
+            </system-audio>
+            <screen>
+                <device>1</device>
+                <aspect-ratio>16:9</aspect-ratio>
+                <stretch>uniform_to_fill</stretch>
+                <windowed>true</windowed>
+                <key-only>false</key-only>
+                <auto-deinterlace>false</auto-deinterlace>
+                <vsync>false</vsync>
+                <interactive>true</interactive>
+                <borderless>false</borderless>
+                <name>gluggi</name>
+            </screen>
+      </consumers>
+    </channel>
+    <channel>
+      <video-mode>720p2997</video-mode>
+      <channel-layout>mono</channel-layout>
+    </channel>
+  </channels>
+<osc>
+  <default-port>6250</default-port>
+  <disable-send-to-amcp-clients>false</disable-send-to-amcp-clients>
+  <predefined-clients>
+    <predefined-client>
+      <address>127.0.0.1</address>
+      <port>5253</port>
+    </predefined-client>
+  </predefined-clients>
+</osc>
+<audio>
+    <channel-layouts>
+        <channel-layout name="mono"        type="mono"        num-channels="1" channel-order="FC" />
+        <channel-layout name="stereo"      type="stereo"      num-channels="2" channel-order="FL FR" />
+        <channel-layout name="matrix"      type="matrix"      num-channels="2" channel-order="ML MR" />
+        <channel-layout name="film"        type="5.1"         num-channels="6" channel-order="FL FC FR BL BR LFE" />
+        <channel-layout name="smpte"       type="5.1"         num-channels="6" channel-order="FL FR FC LFE BL BR" />
+        <channel-layout name="ebu_r123_8a" type="5.1+downmix" num-channels="8" channel-order="DL DR FL FR FC LFE BL BR" />
+        <channel-layout name="ebu_r123_8b" type="5.1+downmix" num-channels="8" channel-order="FL FR FC LFE BL BR DL DR" />
+        <channel-layout name="8ch"         type="8ch"         num-channels="8" />
+        <channel-layout name="16ch"        type="16ch"        num-channels="16" />
+    </channel-layouts>
+    <mix-configs>
+        <mix-config from-type="mono"          to-types="stereo, 5.1"  mix="FL = FC                                           | FR = FC" />
+        <mix-config from-type="mono"          to-types="5.1+downmix"  mix="FL = FC                                           | FR = FC                                         | DL = FC | DR = FC" />
+        <mix-config from-type="mono"          to-types="matrix"       mix="ML = FC                                           | MR = FC" />
+        <mix-config from-type="stereo"        to-types="mono"         mix="FC &lt; FL + FR" />
+        <mix-config from-type="stereo"        to-types="matrix"       mix="ML = FL                                           | MR = FR" />
+        <mix-config from-type="stereo"        to-types="5.1"          mix="FL = FL                                           | FR = FR" />
+        <mix-config from-type="stereo"        to-types="5.1+downmix"  mix="FL = FL                                           | FR = FR                                         | DL = FL | DR = FR" />
+        <mix-config from-type="5.1"           to-types="mono"         mix="FC &lt; FL + FR + 0.707*FC + 0.707*BL + 0.707*BR" />
+        <mix-config from-type="5.1"           to-types="stereo"       mix="FL &lt; FL + 0.707*FC + 0.707*BL                  | FR &lt; FR + 0.707*FC + 0.707*BR" />
+        <mix-config from-type="5.1"           to-types="5.1+downmix"  mix="FL = FL                                           | FR = FR                                         | FC = FC | BL = BL | BR = BR | LFE = LFE | DL &lt; FL + 0.707*FC + 0.707*BL | DR &lt; FR + 0.707*FC + 0.707*BR" />
+        <mix-config from-type="5.1"           to-types="matrix"       mix="ML = 0.3204*FL + 0.293*FC + -0.293*BL + -0.293*BR | MR = 0.3204*FR + 0.293*FC + 0.293*BL + 0.293*BR" />
+        <mix-config from-type="5.1+stereomix" to-types="mono"         mix="FC &lt; DL + DR" />
+        <mix-config from-type="5.1+stereomix" to-types="stereo"       mix="FL = DL                                           | FR = DR" />
+        <mix-config from-type="5.1+stereomix" to-types="5.1"          mix="FL = FL                                           | FR = FR                                         | FC = FC | BL = BL | BR = BR | LFE = LFE" />
+        <mix-config from-type="5.1+stereomix" to-types="matrix"       mix="ML = 0.3204*FL + 0.293*FC + -0.293*BL + -0.293*BR | MR = 0.3204*FR + 0.293*FC + 0.293*BL + 0.293*BR" />
+    </mix-configs>
+</audio>
+  <controllers>
+    <tcp>
+      <port>5250</port>
+      <protocol>AMCP</protocol>
+    </tcp>
+    <tcp>
+      <port>3250</port>
+      <protocol>LOG</protocol>
+    </tcp>
+  </controllers>
+</configuration>`;
+}
+</script>
+</body>
+</html>

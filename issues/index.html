@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <title>CasparCG Issue overview</title>
+    <link rel="stylesheet" href="/s/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="/s/bootstrap.min.css">
+    <link rel="stylesheet" href="/s/font-awesome.4.7.min.css">
+    <script src="/s/jquery-3.1.1.slim.min.js"></script>
+    <script src="/s/tether.min.js"></script>
+    <script src="/s/bootstrap.min.js"></script>
+    <script src="/s/polyfill.min.js"></script>
+    <script src="/s/jquery.dataTables.min.js"></script>
+    <script src="/s/moment.min.js"></script>
+    <style>
+        body {
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+        .black {
+            color: #292b2c;
+        }
+        .container {
+        	width: 100% !important;
+        }
+        td:nth-child(6) {
+          width: 100px !important;
+        }
+        td:nth-child(7) {
+          width: 100px !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12 col-lg-12">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h3>
+                            <a href="https://github.com/techgaun/active-forks" class="black">
+                                <i class="fa fa-github-alt pull-left" aria-hidden="true"></i>
+                            </a>
+                            CasparCG - Latest issues
+                        </h3>
+                    </div>
+
+                    <div class="card-block">
+                        <div id="data-body"></div>
+                        <table id="forkTable" class="display" width="100%"></table>
+                    </div>
+                    <div id="footer" class="card-footer text-muted"></div>
+                </div>
+            </div>
+        </div>
+        <footer>Based on <a href="https://github.com/techgaun/active-forks">techgaun/active-forks</a> and modified by <a href="https://github.com/hreinnbeck">hreinnbeck</a><br>Monitoring 40 last updated issues from: CasparCG/server, CasparCG/help, CasparCG/media-scanner, CasparCG/client, nrkno/tv-automation-casparcg-server</footer>
+    </div>
+
+<script>
+const pages = 1;
+const repo = 'CasparCG/server';
+const repos = ['CasparCG/server','CasparCG/help','CasparCG/media-scanner','CasparCG/client','nrkno/tv-automation-casparcg-server'];
+
+window.addEventListener('load', () => {
+  initDT(); // Initialize the DatatTable and window.columnNames variables
+
+  if (repos) {
+    repos.forEach(function(rep) {
+      fetchData(rep, pages);
+    });
+  }
+});
+
+function updateDT(data) {
+  // Remove any alerts, if any:
+  if ($('.alert')) $('.alert').remove();
+
+  // Format dataset and redraw DataTable. Use second index for key name
+  const forks = [];
+  for (let fork of data) {
+    fork.repo = fork.repository_url.replace('https://api.github.com/repos/','');
+    fork.title = `<a href="${fork.html_url}" target="_blank">${fork.title}</a>`;
+    fork.author = `<a href="${fork.user.html_url}" target="_blank">${fork.user.login}</a>`;
+    //fork.body = `<details><summary>${fork.body.substring(0,40)+'...'}</summary>${fork.body}</details>`;
+    fork.body = fork.body.substring(0,80)+'...';
+    fork.label = '<ul>';
+    if(fork.labels) {
+      fork.labels.forEach(function(label) {
+        fork.label += `<li>${label.name}</li>`;
+      });
+    }
+    fork.label += '</ul>';
+    forks.push(fork);
+  }
+  const dataSet = forks.map(fork =>
+    window.columnNamesMap.map(colNM => fork[colNM[1]])
+  );
+  window.forkTable
+    //.clear()
+    .rows.add(dataSet)
+    .draw();
+}
+
+function initDT() {
+  // Create ordered Object with column name and mapped display name
+  window.columnNamesMap = [
+    ['Repo', 'repo'],
+    ['Title', 'title'],
+    ['Body', 'body'],
+    ['Author', 'author'],
+    ['Labels', 'label'],
+    ['Replies', 'comments'],
+    ['State', 'state'],
+    ['Created', 'created_at'],
+    ['Updated', 'updated_at'],
+  ];
+
+/*
+    0: {url: "https://api.github.com/repos/CasparCG/server/issues/1114",…}
+  assignee: null
+  assignees: []
+  author_association: "NONE"
+    body: "On 2.1 and earlier it is possible to schedule content to play automatically after the foreground item finishes playing by using `LOADBG CONTENTITEM AUTO`
+    ...
+  closed_at: null
+    comments: 13
+  comments_url: "https://api.github.com/repos/CasparCG/server/issues/1114/comments"
+    created_at: "2018-11-20T16:05:18Z"
+    events_url: "https://api.github.com/repos/CasparCG/server/issues/1114/events"
+    html_url: "https://github.com/CasparCG/server/issues/1114"
+  id: 382734058
+  labels: [{id: 33402403, node_id: "MDU6TGFiZWwzMzQwMjQwMw==",…},…]
+  0: {id: 33402403, node_id: "MDU6TGFiZWwzMzQwMjQwMw==",…}
+  color: "d93f0b"
+  default: true
+  id: 33402403
+  name: "bug"
+  node_id: "MDU6TGFiZWwzMzQwMjQwMw=="
+  url: "https://api.github.com/repos/CasparCG/server/labels/bug"
+  1: {id: 825302016, node_id: "MDU6TGFiZWw4MjUzMDIwMTY=",…}
+  color: "006b75"
+  default: false
+  id: 825302016
+  name: "ffmpeg-producer"
+  node_id: "MDU6TGFiZWw4MjUzMDIwMTY="
+  url: "https://api.github.com/repos/CasparCG/server/labels/ffmpeg-producer"
+  labels_url: "https://api.github.com/repos/CasparCG/server/issues/1114/labels{/name}"
+  locked: false
+  milestone: null
+  node_id: "MDU6SXNzdWUzODI3MzQwNTg="
+  number: 1114
+  repository_url: "https://api.github.com/repos/CasparCG/server"
+  state: "open"
+  title: "LOADBG AUTO not playing"
+  updated_at: "2019-06-26T15:58:22Z"
+  url: "https://api.github.com/repos/CasparCG/server/issues/1114"
+  user: {login: "gizahNL", id: 8005186, node_id: "MDQ6VXNlcjgwMDUxODY=",…}
+  avatar_url: "https://avatars3.githubusercontent.com/u/8005186?v=4"
+  events_url: "https://api.github.com/users/gizahNL/events{/privacy}"
+  followers_url: "https://api.github.com/users/gizahNL/followers"
+  following_url: "https://api.github.com/users/gizahNL/following{/other_user}"
+  gists_url: "https://api.github.com/users/gizahNL/gists{/gist_id}"
+  gravatar_id: ""
+  html_url: "https://github.com/gizahNL"
+  id: 8005186
+  login: "gizahNL"
+  node_id: "MDQ6VXNlcjgwMDUxODY="
+  organizations_url: "https://api.github.com/users/gizahNL/orgs"
+  received_events_url: "https://api.github.com/users/gizahNL/received_events"
+  repos_url: "https://api.github.com/users/gizahNL/repos"
+  site_admin: false
+  starred_url: "https://api.github.com/users/gizahNL/starred{/owner}{/repo}"
+  subscriptions_url: "https://api.github.com/users/gizahNL/subscriptions"
+  type: "User"
+  url: "https://api.github.com/users/gizahNL"
+*/
+
+  // Sort by last push:
+  const sortColName = 'Updated';
+  const sortColumnIdx = window.columnNamesMap
+    .map(pair => pair[0])
+    .indexOf(sortColName);
+
+  // Use first index for readable column name
+  // we use moment's fromNow() if we are rendering for `pushed_at`; better solution welcome
+  window.forkTable = $('#forkTable').DataTable({
+    autoWidth: false,
+    columns: window.columnNamesMap.map(colNM => {
+      return {
+        title: colNM[0],
+        render:
+          colNM[1] === 'updated_at' || colNM[1] === 'created_at'
+            ? (data, type, _row) => {
+                if (type === 'display') {
+                  return moment(data).isValid() ? moment(data).fromNow() : '';
+                }
+                return data;
+              }
+            : null,
+      };
+    }),
+    order: [[sortColumnIdx, 'desc']],
+    paging: false
+  });
+}
+
+function showMsg(msg, type) {
+  let alert_type = 'alert-info';
+
+  if (type === 'danger') {
+    alert_type = 'alert-danger';
+  }
+
+  document.getElementById('footer').innerHTML = '';
+
+  document.getElementById('data-body').innerHTML = `
+        <div class="alert ${alert_type} alert-dismissible fade show" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            ${msg}
+        </div>
+    `;
+}
+
+
+const forks = [];
+const forkForks = [];
+function fetchData(repository, paging) {
+	for(var i=1; i<=paging;i++) {
+		fetch(
+		    `https://api.github.com/repos/${repository}/issues?sort=updated&filter=all&state=all&per_page=50&page=${i}`
+		  )
+		    .then(response => {
+		      if (!response.ok) throw Error(response.statusText);
+		      return response.json();
+		    })
+		    .then(data => {
+		      //console.log(data);
+		      updateDT(data);
+		      forks.push(...data);
+		    })
+		    .catch(error => {
+		      const msg =
+		        error.toString().indexOf('Forbidden') >= 0
+		          ? 'Error: API Rate Limit Exceeded'
+		          : error;
+		      console.error(error);
+		    });
+	}
+}
+</script>
+</body>
+</html>

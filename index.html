@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>CasparCG.net - Online tools for CasparCG</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<style>
+		* {box-sizing: border-box;}
+		html, body{ height: 100%; margin: 0; }
+		html {
+		  color: #222;
+		  font-size: 1em;
+		  line-height: 1.4;
+		  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+		  counter-reset: errorCount;
+		}
+		body {
+		  display:flex; 
+		  flex-direction:column;
+		}
+		main {
+			width: 80vw;
+			margin: 0 auto;
+			padding: 2em 0;
+
+		}
+		div {
+			margin: 2em 0;
+		}
+		footer {
+			border-top: 1px solid #ccc;
+			margin-top: auto;
+			padding: 0.5em;
+			text-align: center;
+			font-size: 0.8em;
+			color: #555;
+		}
+		@media only screen and (min-width: 900px) {
+			p {
+				width: 50%;
+			}
+		}
+		button {
+			border: none;
+		    margin: 0;
+		    padding: 0.6em;
+		    width: auto;
+		    overflow: visible;
+			background: #0077be;
+			color: #fff;
+			font-weight: bold;
+			border-radius: 6px;
+			cursor: pointer;
+		}
+		ul, ol {
+		    list-style: disc outside none;
+		    padding-left: 1em;
+		    margin-left: -1em;
+		    display: inline-block;
+		    margin-top: 0;
+		}
+		ol {
+			list-style: decimal;
+		}
+		h2 {
+			margin-bottom: 0;
+		}
+	</style>
+</head>
+<body>
+<main>
+	<h1>Casparcg.net</h1>
+	<div>
+		<h2>Configuration file validator</h2>
+		<p>Check your CasparCG.config file for errors. It will validate XML, verify that only known tags are used, checks if you are using example code and verifies values of most tags. For a valid configuration file it will summarize the number of channels and configured outputs.</p>
+		<a href="/validator/"><button>CasparCG.config file validator</button></a>
+	</div>
+	<div>
+		<h2>List of CasparCG forks</h2>
+		<p>Lists all known forks of CasparCG with comments and information on last push.  Uses the latest data from GitHub and is presented in a sortable table so it's easy to use for monitoring the CCG ecosystem.</p>
+		<a href="/forks/"><button>CasparCG fork listing</button></a>
+	</div>
+	<div>
+		<h2>Overview of CasparCG issues</h2>
+		<p>List of the latest issues from <i>CasparCG/server</i>, <i>CasparCG/help</i>, <i>CasparCG/media-scanner</i>, <i>CasparCG/client</i> and <i>nrkno/tv-automation-casparcg-server</i>. Note that this API from GitHub is heavily rate limited.</p>
+		<a href="/issues/"><button>CasparCG GitHub issues</button></a>
+	</div>
+	<div>
+		<h2>GitHub searches related to CasparCG</h2>
+		<p>Quick searches for CasparCG (and it's misspellings), sorted for most recent results.  Easily see if there are new clients, templates or libraries released on GitHub</p>
+		<a href="https://github.com/search?o=desc&q=casparcg+OR+%22caspar+cg%22+OR+caspercg+OR+%22casper+cg%22+OR+casparcl&s=updated&type=Repositories&sort=recent" target="_blank"><button>Repositories</button></a>
+		<a href="https://github.com/search?o=desc&q=casparcg+OR+%22caspar+cg%22+OR+caspercg+OR+%22casper+cg%22+OR+casparcl&s=indexed&type=Code" target="_blank"><button>Code</button></a>
+		<a href="https://github.com/search?o=desc&q=casparcg+OR+%22caspar+cg%22+OR+caspercg+OR+%22casper+cg%22+OR+casparcl&s=created&type=Issues" target="_blank"><button>Issues</button></a>
+		<a href="https://github.com/search?o=desc&q=casparcg+OR+%22caspar+cg%22+OR+caspercg+OR+%22casper+cg%22+OR+casparcl&s=updated&type=Wikis" target="_blank"><button>Wiki's</button></a>
+		<!--
+		<ul>
+			<li><a href="https://github.com/search?o=desc&q=casparcg+OR+%22caspar+cg%22+OR+caspercg+OR+%22casper+cg%22&s=updated&type=Repositories&sort=recent" target="_blank"><h3>recent repos</h3></a></li>
+			<li><a href="https://github.com/search?o=desc&q=casparcg+OR+%22caspar+cg%22+OR+caspercg+OR+%22casper+cg%22&s=indexed&type=Code" target="_blank"><h3>recent code mentioning CasparCG</h3></a></li>
+			<li><a href="https://github.com/search?o=desc&q=casparcg+OR+%22caspar+cg%22+OR+caspercg+OR+%22casper+cg%22&s=created&type=Issues" target="_blank"><h3>recent issues mentioning CasparCG</h3></a></li>
+			<li><a href="https://github.com/search?o=desc&q=casparcg+OR+%22caspar+cg%22+OR+caspercg+OR+%22casper+cg%22&s=updated&type=Wikis" target="_blank"><h3>recent Wiki's mentioning CasparCG</h3></a></li>
+		</ul>
+		-->
+	</div>
+	<div>
+		<h2>CasparCG resources</h2>
+		<ul>
+			<li><a href="https://casparcg.com" target="_blank">Official CasparCG.com website</a></li>
+			<li><a href="https://casparcgforum.org/" target="_blank">CasparCG User forum</a></li>
+			<li><a href="http://builds.casparcg.com" target="_blank">Latest automatic CasparCG builds</a></li>
+			<li><a href="https://github.com/CasparCG/help/wiki" target="_blank">CasparCG Wiki  (GitHub)</a></li>
+			<li><a href="https://github.com/CasparCG/help" target="_blank">CasparCG Help (GitHub)</a></li>
+			<li><a href="https://github.com/CasparCG/server" target="_blank">CasparCG/server (GitHub)</a></li>
+			<li><a href="https://sourceforge.net/projects/casparcg/" target="_blank">SourceForge (Early CasparCG source, releases and discussions)</a></li>
+		</ul>
+	</div>
+</main>
+<footer>Maintained by <a href="https://github.com/hreinnbeck" target="_blank">hreinnbeck</a></footer>
+</body>
+</html>

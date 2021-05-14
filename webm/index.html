@@ -1,0 +1,200 @@
+<!doctype html>
+<html>
+<head>
+<title>CasparCG WEBM Video in HTML templates</title>
+<style>
+html {
+  box-sizing: border-box;
+  background: transparent;
+}
+*,
+::before,
+::after {
+  box-sizing: inherit;
+}
+body {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100vh;
+	width: 100vw;
+	overflow: hidden;
+}
+#videoplayer {
+	width: 1280px;
+	height: 720px;
+	background: transparent;
+}
+button {
+	background: #eee;
+	border: 2px solid #000;
+	border-radius: 6px;
+	padding: 4px;
+	font-weight: bold;
+	cursor: pointer;
+	margin-bottom: 6px;
+	margin-right: 6px;
+}
+</style>
+</head>
+<body>
+
+<div>
+	<video id="videoplayer" src="Intro-Loop-Outro.webm" data-loopstart="50" data-loopend="199" muted preload="auto"></video>
+	<div>
+		<button onclick="videoPaused = false;">Play</button>
+		<button onclick="videoPaused = true;">Pause</button>
+		<br>
+		<button onclick="playThrough();">Play to end</button>
+		<button onclick="intro();">Play intro and stop</button>
+		<button onclick="playThenLoop();">Play intro then loop</button>
+		<button onclick="playLoop();">Play loop only</button>
+		<button onclick="playLoopAlternate();">Play loop alternate</button>
+		<button onclick="loopOutro();">Stop loop (will finish loop and play to end)</button>
+		<button onclick="outro();">Play outro</button>
+		<br>
+		<button onclick="videoPaused = true; seekExact(videoStart);">First frame of video</button>
+		<button onclick="videoPaused = true; seekExact(loopstart);">First frame of loop</button>
+		<button onclick="videoPaused = true; seekExact(loopend);">Last frame of loop</button>
+		<button onclick="videoPaused = true; seekExact(videoEnd);">Last frame of video</button>
+	</div>
+</div>
+
+<script>
+// Configure
+var videoplayer = document.getElementById('videoplayer');
+var fps = 50;
+// Configure
+
+var videoStart = 0;
+var loopstart = parseFloat(videoplayer.dataset.loopstart);
+var loopend = parseFloat(videoplayer.dataset.loopend);
+var videoEnd;
+
+var fpsMS = 1000 / fps;
+var videoPaused = true;
+var videoLooped = false;
+var videoLoopAlternate = false;
+var videoNextStop = -1;
+var forwards = true;
+
+function playThrough() {
+	videoPaused = true;
+	videoLooped = false;
+	seekExact(videoStart);
+	videoPaused = false;
+}
+
+function intro() {
+	videoPaused = true;
+	videoLooped = false;
+	seekExact(videoStart);
+	videoPaused = false;
+	videoNextStop = loopstart-1;
+}
+
+function outro() {
+	videoPaused = true;
+	seekExact(loopend+1);
+	videoLooped = false;
+	videoPaused = false;
+}
+
+function loopOutro() {
+	videoLooped = false;
+}
+
+function playThenLoop() {
+	videoPaused = true;
+	videoLooped = true;
+	seekExact(videoStart);
+	videoPaused = false;
+}
+
+function playLoop() {
+	videoPaused = true;
+	videoLooped = true;
+	seekExact(loopstart);
+	videoPaused = false;
+}
+
+function playLoopAlternate() {
+	videoPaused = true;
+	videoLooped = true;
+	videoLoopAlternate = true;
+
+	seekExact(loopstart);
+	videoPaused = false;
+}
+
+function seek(frame) {
+	if(Math.sign(frame) > 0) {
+		videoplayer.currentTime = videoplayer.currentTime + (frame*fpsMS)/1000;
+	} else {
+		videoplayer.currentTime = (videoplayer.currentTime - (Math.abs(frame)*fpsMS)/1000);
+	}
+}
+
+function seekExact(frame) {
+	videoplayer.currentTime = (frame*fpsMS)/1000;
+}
+
+function currentFrame() {
+	return Math.ceil(videoplayer.currentTime*fps);
+}
+
+function newFrame() {
+		// Should we play?
+		var frameNow = currentFrame();
+		if(!videoPaused) {
+			if(videoLooped && videoLoopAlternate) { // Alternate loop mode
+					if(!forwards) {
+						seek(-1);
+					} else {
+						seek(1);
+					}
+					if(frameNow > loopend) {
+						seekExact(loopend);
+						forwards = false;
+					} else if(!forwards && frameNow <= loopstart) {
+						seekExact(loopstart);
+						forwards = true;
+					}
+			} else if(videoLooped) {
+					if(frameNow >= loopend) {
+						seekExact(loopstart);
+					} else {
+						seek(1);
+					}
+			} else {
+				if(videoNextStop > 0 && frameNow >= videoNextStop) {
+					videoPaused = true;
+					videoNextStop = -1;
+					return requestAnimationFrame(newFrame);
+				} else {
+					seek(1);
+				}
+			}
+		}
+
+		// Video ended?
+		if(frameNow >= videoEnd) {
+			videoPaused = true;
+		}
+	requestAnimationFrame(newFrame);
+}
+
+videoplayer.addEventListener('loadedmetadata', function() {
+		videoEnd = videoplayer.duration*fps;
+},{passive: true});
+
+videoplayer.addEventListener('canplay', function() {
+		newFrame();
+},{once: true, passive: true});
+
+// Caspar functions
+function update() {}
+function play() {}
+</script>
+</body>
+</html>

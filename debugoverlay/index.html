@@ -1,0 +1,423 @@
+<!doctype html>
+<html>
+<head>
+<style>
+*, *:before, *:after {
+    box-sizing: border-box;
+}
+body {
+    background-image: url(test.png);
+    width: 1920px;
+    height: 1080px;
+    margin: 0;
+    padding: 0;
+}
+</style>
+</head>
+<body>
+
+<button onclick="console.log('clicked');" style="position: absolute; top: 400px; left: 400px;">Pointer events test</button>
+
+<script>
+class DebugOverlay {
+    constructor() {
+        this.defaults = {
+             alphaGrid: true
+            ,gridBackground: false
+            ,gridForeground: true
+            ,gridRuler: true
+            ,rulerX: true
+            ,rulerY: true
+            ,gridSizeX: 64
+            ,gridSizeY: 64
+            ,width: screen.width
+            ,height: screen.height
+            ,alphaGridSize: 5
+            ,alphaGridOpacity: 0.25
+            ,actionArea: true
+            ,safeArea: true
+            ,safeDarken: 0.15
+            ,rulerLength: 30
+            ,rulerLengthDeci: 30/2
+            ,rulerLengthCenti: 30/3
+            ,rulerLengthMilli: 30/6
+            ,mouse: true
+        };
+
+        if(typeof arguments[0] == 'object') {
+            this.options = arguments[0];
+        }
+
+        this.config = Object.assign({}, this.defaults, this.options);
+
+        return this;
+    }
+
+    change() { this.init.apply(this, arguments); }
+
+    init() {
+        if(typeof arguments[0] == 'object') {
+            this.config = Object.assign({}, this.config, arguments[0]);
+        }
+
+        var c = this.config;
+
+        var backgroundUrl = '';
+        if(c.alphaGrid) { backgroundUrl += `url('data:image/svg+xml,${this.generateAlphaGrid()}')`; }
+        if(c.gridBackground && c.alphaGrid) {
+            backgroundUrl += ',' + `url('data:image/svg+xml,${this.generateSvgGrid()}')`;
+        } else if(c.gridBackground) {
+            backgroundUrl += `url('data:image/svg+xml,${this.generateSvgGrid()}')`;
+        }
+
+        var debugOverlayUrl = `url('data:image/svg+xml,${this.generateSvgOverlay()}')`;
+        if(c.gridForeground) {
+            debugOverlayUrl += ', ' + `url('data:image/svg+xml,${this.generateSvgGrid()}')`;
+        }
+        if(c.gridRuler) {
+            debugOverlayUrl += ', ' + `url('data:image/svg+xml,${this.generateSvgRuler()}')`;
+        }
+
+        var styles = '';
+        styles = `
+            html {
+                width: ${c.width}px;
+                height: ${c.height}px;
+                overflow: hidden;
+                background-color: transparent;
+                background-image: ${backgroundUrl};
+                background-attachment: fixed;
+                background-position: 0 0;
+            }
+            #DebugOverlay__debugOverlay {
+                pointer-events: none;
+                position: fixed;
+                top: 0px;
+                left: 0px;
+                width: ${c.width}px;
+                height: ${c.height}px;
+                overflow: hidden;
+                background-color: transparent;
+                background-image: ${debugOverlayUrl};
+                background-attachment: fixed;
+                background-position: 0 0;
+                z-index: 9999999999999999999;
+            }
+            @font-face {
+                font-family: 'Source Code Pro';
+                src: url(data:application/font-woff2;charset=utf-8;base64,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) format('woff2');
+                font-weight: bold;
+                font-style: normal;
+            }
+        `;
+
+        if(c.mouse) {
+            styles += `
+                #DebugOverlay__debug_mouseX, #DebugOverlay__debug_mouseY {
+                    position: fixed;                
+                    top: -16px;
+                    left: -16px;
+                    pointer-events: none;
+                    z-index: 8888888888888;
+                }
+                #DebugOverlay__debug_mouseX {
+                    height: 100%;
+                    width: 0px;
+                    border-left: 1px dotted #FF0000;
+                }
+                #DebugOverlay__debug_mouseY {
+                    height: 0px;
+                    width: 100%;
+                    border-bottom: 1px dotted #FF0000;
+                }
+                #DebugOverlay__debug_mouseTooltip {
+                    position: fixed;
+                    left: 0;
+                    top: -10px;
+                    color: #fff;
+                    font-family: "Source Code Pro", monospace;
+                    font-size: 14px;
+                    font-weight: bold;
+                    text-shadow: 1px 1px 2px #000;
+                    background: rgba(0,0,0,0.25);
+                    border: 1px solid rgba(0, 0, 0, 0.5);
+                    border-radius: 6px;
+                    padding: 2px 4px;
+                    z-index: 8888888888888;
+                }`;
+        }
+
+        var styleHead = document.getElementById('DebugOverlay__layoutgrid');
+        if(!styleHead) {
+            var style = document.createElement('style');
+            style.id = 'DebugOverlay__layoutgrid';
+            style.textContent = styles;
+            document.head.appendChild(style);
+        } else {
+            styleHead.textContent = styles;
+            console.log('Styles exist - updating');
+        }
+
+        if(!document.getElementById('DebugOverlay__debugOverlay')) {
+            var overlay = document.createElement('div');
+            overlay.id = 'DebugOverlay__debugOverlay';
+            document.body.appendChild(overlay);
+        }
+
+        if(c.mouse) {
+            if(!document.getElementById('DebugOverlay__debug_mouseX')) {
+                this.mouseX = document.createElement('div');
+                this.mouseX.id = 'DebugOverlay__debug_mouseX';
+                document.body.appendChild(this.mouseX);
+            } else { this.mouseX = document.getElementById('DebugOverlay__debug_mouseX'); }
+
+            if(!document.getElementById('DebugOverlay__debug_mouseY')) {
+                this.mouseY = document.createElement('div');
+                this.mouseY.id = 'DebugOverlay__debug_mouseY';
+                document.body.appendChild(this.mouseY);
+            } else { this.ouseY = document.getElementById('DebugOverlay__debug_mouseY'); }
+
+            if(!document.getElementById('DebugOverlay__debug_mouseTooltip')) {
+                this.mouseTooltip = document.createElement('div');
+                this.mouseTooltip.id = 'DebugOverlay__debug_mouseTooltip';
+                document.body.appendChild(this.mouseTooltip);
+            } else { this.mouseTooltip = document.getElementById('DebugOverlay__debug_mouseTooltip'); }
+
+            window.addEventListener('mousemove', this.mousemovement.bind(this));
+        }
+    }//// init
+
+    mousemovement(e) {
+        if(!this.config.mouse) { return; }
+        var that = this;
+        requestAnimationFrame(function(){
+            var X = e.pageX+16, Y = e.pageY+16;
+
+            that.mouseX.style.transform = 'translateX('+X+'px)';
+            that.mouseY.style.transform = 'translateY('+Y+'px)';
+
+            that.mouseTooltip.style.transform = 'translate('+X+'px, '+Y+'px)'
+            that.mouseTooltip.textContent = X + ' x ' + Y;
+        });
+    }
+
+    generateAlphaGrid() {
+        var c = this.config;
+        return this.removeWhitespaces(`<svg xmlns="http://www.w3.org/2000/svg" width="${c.alphaGridSize*2}" height="${c.alphaGridSize*2}" fill-opacity="${c.alphaGridOpacity}" >
+                <rect x="${c.alphaGridSize}" width="${c.alphaGridSize}" height="${c.alphaGridSize}" />
+                <rect y="${c.alphaGridSize}" width="${c.alphaGridSize}" height="${c.alphaGridSize}" />
+                </svg>`);
+    }////generateAlphaGrid
+
+    generateSvgGrid(c) {
+        var c = this.config;
+        var svg = `
+        <svg id="layoutGridSvg" xmlns="http://www.w3.org/2000/svg" width="${c.width}px" height="${c.height}px">
+        <style>
+        * {
+            pointer-events: none;
+            font-family: "Source Code Pro", monospace;
+        }
+        text {
+            font-size: 13px;
+            font-weight: bold;
+            fill: #000;
+            fill-opacity: 0.5;
+            stroke: #FFF;
+            stroke-width: 1;
+            stroke-opacity: 0.3;
+            paint-order: stroke;
+        }
+
+        #rules-x rect, #rules-y rect {
+            fill: #000;
+            opacity: 1;
+        }
+        #rules-x rect {
+            width: 1px;
+        }
+        #rules-y rect {
+            height: 1px;
+        }
+        #rules-x text, #rules-y text {
+            stroke-width: 0.3;
+            stroke-opacity: 0.4;
+            text-anchor: start;
+        }
+        #rules-y text {
+            text-anchor: end;
+        }
+        </style>
+        <defs>
+            <pattern id="grid" width="${c.gridSizeX}" height="${c.gridSizeY}" patternUnits="userSpaceOnUse">
+                <rect width="${c.gridSizeX}" height="${c.gridSizeY}" fill="none"/>
+                <path d="M ${c.gridSizeX} 0 L 0 0 0 ${c.gridSizeY}" fill="none" stroke="#808080" stroke-width="1"/>
+            </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#grid)"/>
+        `;
+
+        // Grid
+        for(var y=0; y<c.height; y+=c.gridSizeY) {
+            for(var x=0; x<c.width; x+=c.gridSizeX) {
+                var yText = y+c.gridSizeY;
+                var xText = x+c.gridSizeX;
+
+                if(yText > c.height) { yText = c.height; }
+
+                svg += `<svg width="${c.gridSizeX}" height="${c.gridSizeY}" y="${y}" x="${x}"><text y="100%">&#x25BC; ${yText}</text><text x="100%" y="0.7em" text-anchor="end" width="${c.gridSizeX}">${xText} &#x25BA;</text></svg>`;
+            }
+        }
+
+        svg += '</svg>';
+        return this.removeWhitespaces( svg.replace(/#/g,'%23') );
+    }//// generateSvgGrid
+
+    generateSvgRuler() {
+        var c = this.config;
+        var svg = `
+        <svg id="layoutGridSvg" xmlns="http://www.w3.org/2000/svg" width="${c.width}px" height="${c.height}px">
+        <style>
+        * {
+            pointer-events: none;
+            font-family: "Source Code Pro", monospace;
+        }
+        text {
+            font-size: 13px;
+            font-weight: bold;
+            fill: #000;
+            fill-opacity: 0.5;
+            stroke: #FFF;
+            stroke-width: 1;
+            stroke-opacity: 1;
+            paint-order: stroke;
+            stroke-opacity: 0.4;
+            text-anchor: start;
+        }
+        #rules-x rect, #rules-y rect {
+            fill: #000;
+            opacity: 1;
+        }
+        #rules-x rect {
+            width: 1px;
+        }
+        #rules-y rect {
+            height: 1px;
+        }
+        #rules-y text {
+            text-anchor: end;
+        }
+        </style>
+        `;
+        
+        // X ruler
+        if(c.rulerX) {
+            svg += '<g id="rules-x">';
+            for(var x=c.width; x > 0; x--) {
+                if(x % 5 === 0) {
+                    svg += `<rect x="${x}" y="0" height="${c.rulerLengthMilli}"/>`;
+                }
+                if(x % 10 === 0) {
+                    svg += `<rect x="${x}" y="0" height="${c.rulerLengthCenti}"/>`;
+                }
+                if(x % 20 === 0) {
+                    svg += `<rect x="${x}" y="0" height="${c.rulerLengthDeci}"/>`;
+                }
+                if(x % 50 === 0) {
+                    svg += `<rect x="${x}" y="0" height="${c.rulerLength}"/>
+                            <text x="${x+2}" y="${c.rulerLength}">${x}</text>`;
+                }
+            }
+            svg += '</g>';
+        }
+
+        // Y ruler
+        if(c.rulerY) {
+            svg += '<g id="rules-y">';
+            for(var y=c.height; y > 0; y--) {
+                if(y % 5 === 0) {
+                    svg += `<rect x="0" y="${y}" width="${c.rulerLengthMilli}"/>`;
+                }
+                if(y % 10 === 0) {
+                    svg += `<rect x="0" y="${y}" width="${c.rulerLengthCenti}"/>`;
+                }
+                if(y % 20 === 0) {
+                    svg += `<rect x="0" y="${y}" width="${c.rulerLengthDeci}"/>`;
+                }
+                if(y % 50 === 0) {
+                    svg += `<rect x="0" y="${y}" width="${c.rulerLength}"/>`;
+                }
+            }
+            
+            for(var y=c.height; y >= 0; y--) { // Separate loop so text is on top of lines
+                if(y % 50 === 0) {
+                    svg += `<text x="${c.rulerLength}" y="${y}">${y}</text>`;
+                }
+            }
+            svg += '</g>';
+        }
+
+        svg += '</svg>';
+        return this.removeWhitespaces( svg.replace(/#/g,'%23') );
+    }//// generateSvgRuler
+
+    generateSvgOverlay() {
+        var c = this.config;
+        var svg = `<svg id="layoutGridSvg" xmlns="http://www.w3.org/2000/svg" width="${c.width}px" height="${c.height}px" style="pointer-events:none;">`;
+
+        // Action and graphics safe area reticles (EBU R 95)
+        var actionSafeTopBottom = ~~(c.height*0.035);
+        var actionSafeSides = ~~(c.width*0.035);
+
+        var safeTopBottom = ~~(c.height*0.05);
+        var safeSides = ~~(c.width*0.05);
+
+        if(c.actionArea) {
+            svg += '<g id="actionsafe">';
+            if(c.safeDarken > 0) {
+                svg += `<mask id="cutout">
+                            <rect x="0" y="0" width="100%" height="100%" fill="#FFF" opacity="1"/>
+                            <rect x="${actionSafeSides}" y="${actionSafeTopBottom}" width="${c.width-(actionSafeSides*2)}" height="${c.height-(actionSafeTopBottom*2)}" fill="#000" rx="8"/>
+                        </mask>
+                        <rect x="0" y="0" width="100%" height="100%" fill="#000" opacity="${c.safeDarken}" mask="url(#cutout)"/>`;
+            }
+            svg += `<rect x="${actionSafeSides}" y="${actionSafeTopBottom}" width="${c.width-(actionSafeSides*2)}" height="${c.height-(actionSafeTopBottom*2)}" fill="none" stroke="red" stroke-width="2" stroke-opacity="0.5" stroke-dasharray="5" rx="8"/>`;
+            svg += '</g>';
+        }
+
+        if(c.safeArea) {
+            svg += '<g id="titlesafe">';
+            if(c.safeDarken > 0) {
+                svg += `<mask id="cutout2">
+                            <rect x="0" y="0" width="100%" height="100%" fill="#FFF" opacity="1"/>
+                            <rect x="${safeSides}" y="${safeTopBottom}" width="${c.width-(safeSides*2)}" height="${c.height-(safeTopBottom*2)}" fill="#000" stroke="green" stroke-width="2" stroke-opacity="0.5" stroke-dasharray="5" rx="8"/>
+                        </mask>
+                        <rect x="0" y="0" width="100%" height="100%" fill="#000" opacity="${c.safeDarken}" mask="url(#cutout2)"/>`;
+            }
+            svg += `<rect x="${safeSides}" y="${safeTopBottom}" width="${c.width-(safeSides*2)}" height="${c.height-(safeTopBottom*2)}" fill="none" stroke="green" stroke-width="2" stroke-opacity="0.5" stroke-dasharray="5" rx="8"/>`;
+            svg += '</g>';
+        }
+
+        var centerMark = true;
+        if(centerMark) {
+            svg += `<g id="centermark"><svg x="${c.width/2-50}" y="${c.height/2-50}"><path stroke="#000" stroke-width="3" stroke-opacity="0.3" d="m 0,50.000003 h 38.399996 m 6,0 h 11.2 m 6,0 h 38.4 M 49.999996,0 v 38.4 m 0,6 v 11.200003 m 0,6 V 100"/></svg></g>`;
+        }
+
+        svg += '</svg>';
+        return this.removeWhitespaces( svg.replace(/#/g,'%23') );
+    }//// generateSvgOverlay
+
+    removeWhitespaces(s) { return s.replace(/\r?\n|\r|\t|\s{2,}/g,''); }
+
+}//// DebugOverlay
+
+var overlay = new DebugOverlay({gridSizeX: 1920/4, gridSizeY: 1080/4, alphaGridSize: 10});
+overlay.init();
+
+// Change somthing:
+// overlay.change({alphaGrid: false});
+</script>
+
+
+</body>
+</html>
