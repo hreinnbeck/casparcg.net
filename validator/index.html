@@ -433,9 +433,10 @@ function reValidate() {
 }
 
 function summarize() {
-	channels = Object.keys(jsonObj.configuration.channels.channel).length;
+	var channelCount = Object.keys(jsonObj.configuration.channels.channel).length;
+	if(Object.keys(jsonObj.configuration.channels.channel)[0] !== "0") { channelCount = 1; }
 	summary.innerHTML = `<b>This config has:</b><br>
-	${channels} channel(s)<br>
+	${channelCount} channel(s)<br>
 	${screen} screen consumer(s)<br>
 	${systemAudio} system audio output(s)<br>
 	${decklink} decklink output(s)<br>
